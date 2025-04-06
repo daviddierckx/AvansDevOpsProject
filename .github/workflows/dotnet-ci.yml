@@ -51,7 +51,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }} # Nodig voor PR analyse
         # SONAR_TOKEN niet meer nodig als environment variable hier
       run: |
-        dotnet sonarscanner begin /o:"daviddierckx-1" /k:"daviddierckx_AvansDevOpsProject" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="e15948195a7936ceb820e69e755728bd93d252ad" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/obj/**,**/bin/**,**/*Tests/**,**/TestResults/**" /d:sonar.verbose="true"
+        dotnet sonarscanner begin /o:"daviddierckx-1" /k:"daviddierckx_AvansDevOpsProject" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/obj/**,**/bin/**,**/*Tests/**,**/TestResults/**" /d:sonar.verbose="true"
 
 
     # Stap 7: Code bouwen (Release configuratie)
@@ -68,5 +68,5 @@ jobs:
     - name: SonarScanner End Analysis
       # env: SONAR_TOKEN niet meer nodig als environment variable hier
       run: |
-        dotnet sonarscanner end /d:sonar.login="e15948195a7936ceb820e69e755728bd93d252ad"
+        dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
