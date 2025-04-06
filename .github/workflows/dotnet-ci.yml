@@ -4,9 +4,9 @@ name: .NET CI Build, Test, Analyze (SonarCloud met OpenCover)
 # Trigger de workflow bij een push naar de main branch of bij pull requests naar main
 on:
   push:
-    branches: [ master ] # Pas aan naar jouw hoofdbranch indien anders
+    branches: [ master ] 
   pull_request:
-    branches: [ master ] # Pas aan naar jouw hoofdbranch indien anders
+    branches: [ master ] 
 
 jobs:
   build-test-analyze:
