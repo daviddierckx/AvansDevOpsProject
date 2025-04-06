@@ -48,7 +48,7 @@ jobs:
     #    Vóór de build/test stap!
     - name: SonarScanner Begin Analysis
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Nodig voor PR analyse
+        GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }} # Nodig voor PR analyse
         # SONAR_TOKEN niet meer nodig als environment variable hier
       run: |
         dotnet sonarscanner begin /o:"daviddierckx-1" /k:"daviddierckx_AvansDevOpsProject" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="e15948195a7936ceb820e69e755728bd93d252ad" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/obj/**,**/bin/**,**/*Tests/**,**/TestResults/**" /d:sonar.verbose="true"
