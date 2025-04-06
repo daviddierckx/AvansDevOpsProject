@@ -19,10 +19,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AvansDevOps.App.Domain\AvansDevOps.App.Domain.csproj" />
+    <ProjectReference Include="..\AvansDevOps.App.Infrastructure\AvansDevOps.App.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="TestResults\" />
   </ItemGroup>
 
 </Project>

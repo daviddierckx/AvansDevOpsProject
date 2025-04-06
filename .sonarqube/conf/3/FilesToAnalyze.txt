@@ -1,0 +1,2 @@
+﻿C:\Users\dierc\Downloads\BI\AvansDevOps\AvansDevOps.App.Application\Services\BacklogItemManager.cs
+C:\Users\dierc\Downloads\BI\AvansDevOps\AvansDevOps.App.Application\Services\SprintManager.cs

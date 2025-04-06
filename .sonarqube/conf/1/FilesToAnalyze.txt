@@ -1,0 +1,10 @@
+﻿C:\Users\dierc\Downloads\BI\AvansDevOps\AvansDevOps.App.Infrastructure\Notifications\EmailNotificationStrategy.cs
+C:\Users\dierc\Downloads\BI\AvansDevOps\AvansDevOps.App.Infrastructure\Notifications\SlackNotificationStrategy.cs
+C:\Users\dierc\Downloads\BI\AvansDevOps\AvansDevOps.App.Infrastructure\Notifications\StubNotificationService.cs
+C:\Users\dierc\Downloads\BI\AvansDevOps\AvansDevOps.App.Infrastructure\Persistence\FakeRepositories\FakeBacklogItemRepository.cs
+C:\Users\dierc\Downloads\BI\AvansDevOps\AvansDevOps.App.Infrastructure\Persistence\FakeRepositories\FakeProjectRepository.cs
+C:\Users\dierc\Downloads\BI\AvansDevOps\AvansDevOps.App.Infrastructure\Persistence\FakeRepositories\FakeSprintRepository.cs
+C:\Users\dierc\Downloads\BI\AvansDevOps\AvansDevOps.App.Infrastructure\Persistence\FakeRepositories\FakeUserRepository.cs
+C:\Users\dierc\Downloads\BI\AvansDevOps\AvansDevOps.App.Infrastructure\Pipeline\StubPipelineExecutor.cs
+C:\Users\dierc\Downloads\BI\AvansDevOps\AvansDevOps.App.Infrastructure\Reporting\PdfReportStrategy.cs
+C:\Users\dierc\Downloads\BI\AvansDevOps\AvansDevOps.App.Infrastructure\Reporting\PngReportStrategy.cs
