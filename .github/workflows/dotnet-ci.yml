@@ -1,4 +1,4 @@
-# Plaats dit bestand in: .github/workflows/dotnet-ci.yml
+
 name: .NET CI Build, Test, Analyze (SonarCloud met OpenCover)
 
 # Trigger de workflow bij een push naar de main branch of bij pull requests naar main
