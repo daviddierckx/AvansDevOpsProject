@@ -59,7 +59,7 @@ jobs:
       run: dotnet build --configuration Release --no-restore
 
     # Stap 8: Unit Tests uitvoeren MET OpenCover code coverage
-    #    Zorg dat 'coverlet.collector' NuGet package is toegevoegd aan je test project!
+    #    Zorg dat 'coverlet.collector' NuGet package is toegevoegd aan je test project
     - name: Run tests with OpenCover coverage
       run: |
         dotnet test --configuration Release --no-build --logger "trx;LogFileName=testresults.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./TestResults/coverage.opencover.xml --results-directory ./TestResults
