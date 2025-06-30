@@ -1,12 +1,12 @@
 # Bestandsnaam: .github/workflows/dotnet-ci.yml
 
-name: .NET CI Build, Test, Analyze (SonarCloud - dotnet-coverage)
+name: .NET CI Build, Test, Analyze (SonarCloud - Definitieve Methode)
 
 on:
   push:
-    branches: [ master ] # <-- AANGEPAST
+    branches: [ master ] # Aangepast naar jouw 'master' branch
   pull_request:
-    branches: [ master ] # <-- AANGEPAST
+    branches: [ master ] # Aangepast naar jouw 'master' branch
 
 jobs:
   build-test-analyze:
@@ -16,42 +16,32 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      SOLUTION_FILE_PATH: . 
       TEST_PROJECT_PATH: ./AvansDevOps.App.Domain.Tests/AvansDevOps.App.Domain.Tests.csproj
 
     steps:
-    # Stap 1: Code ophalen
+    # 1. Code ophalen
     - name: Checkout code
       uses: actions/checkout@v3
       with:
         fetch-depth: 0 
 
-    # Stap 2: .NET SDK installeren
+    # 2. .NET SDK installeren
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '8.0.x'
 
-    # Stap 3: NuGet packages cachen (optioneel)
-    - name: Cache NuGet packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget-
-
-    # Stap 4: Dependencies herstellen
+    # 3. Dependencies herstellen
     - name: Restore dependencies
-      run: dotnet restore ${{ env.SOLUTION_FILE_PATH }}
+      run: dotnet restore
 
-    # Stap 5: Benodigde .NET tools installeren
+    # 4. Benodigde .NET tools installeren (inclusief reportgenerator)
     - name: Install .NET Tools
       run: |
         dotnet tool install --global dotnet-sonarscanner
-        dotnet tool install --global dotnet-coverage
+        dotnet tool install --global dotnet-reportgenerator-globaltool
 
-    # Stap 6: SonarScanner 'begin' stap
+    # 5. SonarScanner 'begin' stap (deze is correct)
     - name: SonarScanner Begin Analysis
       run: |
         dotnet sonarscanner begin \
@@ -61,17 +51,21 @@ jobs:
           /d:sonar.login="${{ env.SONAR_TOKEN }}" \
           /d:sonar.cs.opencover.reportsPaths="./TestResults/coverage.opencover.xml" 
 
-    # Stap 7: Project bouwen
+    # 6. Project bouwen
     - name: Build project
-      run: dotnet build --configuration Release --no-restore ${{ env.SOLUTION_FILE_PATH }}
+      run: dotnet build --configuration Release --no-restore
 
-    # Stap 8: Unit Tests uitvoeren en coverage genereren
-    - name: Run tests and collect coverage
+    # 7. Coverage-rapport genereren (in Cobertura-formaat)
+    # Deze stap maakt het werkende Cobertura-bestand, net als Fine Code Coverage lokaal deed.
+    - name: Generate Cobertura Coverage Report
+      run: dotnet test ${{ env.TEST_PROJECT_PATH }} --configuration Release --no-build --collect:"XPlat Code Coverage" --results-directory ./TempCoverage/
+      
+    # 8. Converteer het Cobertura-rapport naar OpenCover
+    # Dit is de cruciale stap die jij lokaal ook hebt uitgevoerd.
+    - name: Convert Cobertura to OpenCover
       run: |
-        dotnet-coverage collect 'dotnet test ${{ env.TEST_PROJECT_PATH }} --configuration Release --no-build' \
-          -f opencover \
-          -o './TestResults/coverage.opencover.xml'
+        reportgenerator "-reports:./TempCoverage/**/*.xml" "-targetdir:TestResults" "-reporttypes:OpenCover"
 
-    # Stap 9: SonarScanner 'end' stap
+    # 9. SonarScanner 'end' stap
     - name: SonarScanner End Analysis
       run: dotnet sonarscanner end /d:sonar.login="${{ env.SONAR_TOKEN }}"
