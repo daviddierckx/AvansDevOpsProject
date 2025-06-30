@@ -48,7 +48,7 @@ jobs:
         dotnet tool install --global dotnet-sonarscanner
         dotnet tool install --global coverlet.console
 
-    # Stap 6: SonarScanner 'begin' stap. We gaan terug naar OpenCover.
+    # Stap 6: SonarScanner 'begin' stap met OpenCover.
     - name: SonarScanner Begin Analysis
       run: |
         dotnet sonarscanner begin \
@@ -62,18 +62,19 @@ jobs:
     - name: Build project
       run: dotnet build --configuration Release --no-restore
 
-    # Stap 8: Unit Tests uitvoeren ZONDER coverage. We hebben alleen de testresultaten nodig.
+    # Stap 8: Unit Tests uitvoeren ZONDER coverage.
     - name: Run tests (no coverage collection here)
       run: dotnet test --configuration Release --no-build --logger trx
 
-    # NIEUWE STAP 9: Genereer het coverage-rapport met coverlet.console
+    # Stap 9: Genereer het coverage-rapport met coverlet.console (DEFINITIEVE FIX)
     - name: Generate Coverage Report with Coverlet
       run: |
         coverlet ${{ env.TEST_PROJECT_PATH }} \
           --target "dotnet" \
           --targetargs "test --no-build --configuration Release" \
           --format opencover \
-          --output "./TestResults/coverage.opencover.xml"
+          --output "./TestResults/coverage.opencover.xml" \
+          --include-test-assembly # <-- DE CRUCIALE TOEVOEGING
 
     # Stap 10: SonarScanner 'end' stap
     - name: SonarScanner End Analysis
