@@ -1,10 +1,10 @@
 # Bestandsnaam: .github/workflows/dotnet-ci.yml
 
-name: .NET CI Build, Test, Analyze (SonarCloud with Cobertura)
+name: .NET CI Build, Test, Analyze (SonarCloud met Cobertura)
 
 on:
   push:
-    branches: [ master ] # Of 'master' als dat je branch is
+    branches: [ master ] # Of 'master'
   pull_request:
     branches: [ master ] 
 
@@ -18,19 +18,17 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     steps:
-    # Stap 1: Code ophalen
+    # Stappen 1 t/m 5 blijven hetzelfde...
     - name: Checkout code
       uses: actions/checkout@v3
       with:
         fetch-depth: 0 
 
-    # Stap 2: .NET SDK installeren
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '8.0.x'
 
-    # Stap 3: Cache (optioneel)
     - name: Cache NuGet packages
       uses: actions/cache@v3
       with:
@@ -39,15 +37,13 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-nuget-
 
-    # Stap 4: Dependencies herstellen
     - name: Restore dependencies
       run: dotnet restore
 
-    # Stap 5: SonarScanner installeren
     - name: Install SonarScanner
       run: dotnet tool install --global dotnet-sonarscanner
 
-    # Stap 6: SonarScanner 'begin' stap (AANGEPAST)
+    # Stap 6: SonarScanner 'begin' - Deze is CORRECT en hoeft NIET aangepast te worden
     - name: SonarScanner Begin Analysis
       run: |
         dotnet sonarscanner begin \
@@ -55,20 +51,21 @@ jobs:
           /k:"daviddierckx_AvansDevOpsProject" \
           /d:sonar.host.url="https://sonarcloud.io" \
           /d:sonar.login="${{ env.SONAR_TOKEN }}" \
-          /d:sonar.cs.cobertura.reportsPaths="./TestResults/coverage.cobertura.xml"  # <-- BELANGRIJKE WIJZIGING
+          /d:sonar.cs.cobertura.reportsPaths="./TestResults/coverage.cobertura.xml"
 
     # Stap 7: Code bouwen
     - name: Build project
       run: dotnet build --configuration Release --no-restore
 
-    # Stap 8: Unit Tests uitvoeren (AANGEPAST)
+    # Stap 8: Unit Tests uitvoeren (FINALE CORRECTIE)
     - name: Run tests with Cobertura coverage
       run: |
         dotnet test \
           --configuration Release \
           --no-build \
-          --collect:"XPlat Code Coverage" \
-          --results-directory ./TestResults # <-- BELANGRIJKE WIJZIGING
+          /p:CollectCoverage=true \
+          /p:CoverletOutputFormat=cobertura \
+          /p:CoverletOutput=./TestResults/coverage.cobertura.xml
 
     # Stap 9: SonarScanner 'end' stap
     - name: SonarScanner End Analysis
