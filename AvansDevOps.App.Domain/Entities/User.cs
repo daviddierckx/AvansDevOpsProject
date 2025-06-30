@@ -23,7 +23,6 @@ namespace AvansDevOps.App.Domain.Entities
             Email = email;
             SlackUsername = slackUsername;
             NotificationPreferences = new List<INotificationStrategy>();
-            // Default: Email? Of moet dit expliciet? Laten we het expliciet maken.
         }
 
         public void AddNotificationPreference(INotificationStrategy strategy) // Strategy Pattern

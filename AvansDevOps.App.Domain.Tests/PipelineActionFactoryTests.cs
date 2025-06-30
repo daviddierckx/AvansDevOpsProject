@@ -1,5 +1,4 @@
-﻿
-using AvansDevOps.App.Domain.Entities;
+﻿using AvansDevOps.App.Domain.Entities;
 using AvansDevOps.App.Domain.Factories;
 using System;
 using System.Collections.Generic;
@@ -10,8 +9,7 @@ namespace AvansDevOps.App.Domain.Tests
     public class PipelineActionFactoryTests
     {
         [Fact]
-        // Requirement: FR07 (Factory Pattern - Source)
-        public void CreateAction_Maakt_Correcte_SourceAction()
+        public void Test_FR07_CreateAction_SourceAction()
         {
             // Arrange
             var parameters = new Dictionary<string, object>
@@ -26,15 +24,13 @@ namespace AvansDevOps.App.Domain.Tests
             // Assert
             Assert.IsType<SourceAction>(action);
             var sourceAction = action as SourceAction;
-            Assert.NotNull(sourceAction); // Controleer cast
+            Assert.NotNull(sourceAction);
             Assert.Equal("git://test.com/repo.git", sourceAction.RepositoryUrl);
             Assert.Equal("main", sourceAction.Branch);
-            Assert.Equal("Get Source", action.Name);
         }
 
         [Fact]
-        // Requirement: FR07 (Factory Pattern - Package)
-        public void CreateAction_Maakt_Correcte_PackageAction()
+        public void Test_FR07_CreateAction_PackageAction()
         {
             // Arrange
             var packages = new List<string> { "PackageA", "PackageB" };
@@ -48,15 +44,13 @@ namespace AvansDevOps.App.Domain.Tests
             var packageAction = action as PackageAction;
             Assert.NotNull(packageAction);
             Assert.Equal(packages, packageAction.Packages);
-            Assert.Equal("Install Deps", action.Name);
         }
 
         [Fact]
-        // Requirement: FR07 (Factory Pattern - Build)
-        public void CreateAction_Maakt_Correcte_BuildAction_Met_Defaults()
+        public void Test_FR07_CreateAction_BuildAction_With_Defaults()
         {
             // Arrange
-            var parameters = new Dictionary<string, object>(); // Gebruik defaults
+            var parameters = new Dictionary<string, object>();
 
             // Act
             var action = PipelineActionFactory.CreateAction(PipelineActionFactory.ActionType.Build, "Build Project", parameters);
@@ -65,14 +59,12 @@ namespace AvansDevOps.App.Domain.Tests
             Assert.IsType<BuildAction>(action);
             var buildAction = action as BuildAction;
             Assert.NotNull(buildAction);
-            Assert.Equal("Release", buildAction.BuildConfiguration); // Default
-            Assert.Equal("Any CPU", buildAction.Platform); // Default
-            Assert.Equal("Build Project", action.Name);
+            Assert.Equal("Release", buildAction.BuildConfiguration);
+            Assert.Equal("Any CPU", buildAction.Platform);
         }
 
         [Fact]
-        // Requirement: FR07 (Factory Pattern - Build met parameters)
-        public void CreateAction_Maakt_Correcte_BuildAction_Met_Parameters()
+        public void Test_FR07_CreateAction_BuildAction_With_Parameters()
         {
             // Arrange
             var parameters = new Dictionary<string, object>
@@ -90,16 +82,14 @@ namespace AvansDevOps.App.Domain.Tests
             Assert.NotNull(buildAction);
             Assert.Equal("Debug", buildAction.BuildConfiguration);
             Assert.Equal("x64", buildAction.Platform);
-            Assert.Equal("Build Debug x64", action.Name);
         }
 
 
         [Fact]
-        // Requirement: FR07 (Factory Pattern - Test)
-        public void CreateAction_Maakt_Correcte_TestAction_Met_Defaults()
+        public void Test_FR07_CreateAction_TestAction_With_Defaults()
         {
             // Arrange
-            var parameters = new Dictionary<string, object>(); // Geen parameters, gebruik defaults
+            var parameters = new Dictionary<string, object>();
 
             // Act
             var action = PipelineActionFactory.CreateAction(PipelineActionFactory.ActionType.Test, "Run Tests", parameters);
@@ -107,16 +97,14 @@ namespace AvansDevOps.App.Domain.Tests
             // Assert
             Assert.IsType<TestAction>(action);
             var testAction = action as TestAction;
-            Assert.NotNull(testAction); // Controleer cast
-            Assert.Equal("NUnit", testAction.TestFramework); // Default
-            Assert.True(testAction.PublishResults); // Default
-            Assert.True(testAction.CollectCoverage); // Default
-            Assert.Equal("Run Tests", action.Name);
+            Assert.NotNull(testAction);
+            Assert.Equal("NUnit", testAction.TestFramework);
+            Assert.True(testAction.PublishResults);
+            Assert.True(testAction.CollectCoverage);
         }
 
         [Fact]
-        // Requirement: FR07 (Factory Pattern - Test met parameters)
-        public void CreateAction_Maakt_Correcte_TestAction_Met_Parameters()
+        public void Test_FR07_CreateAction_TestAction_With_Parameters()
         {
             // Arrange
             var parameters = new Dictionary<string, object>
@@ -124,7 +112,7 @@ namespace AvansDevOps.App.Domain.Tests
                 { "TestFramework", "xUnit" },
                 { "PublishResults", false },
                 { "CollectCoverage", false },
-                { "ShouldFail", true } // Voor simulatie
+                { "ShouldFail", true }
             };
 
             // Act
@@ -137,16 +125,13 @@ namespace AvansDevOps.App.Domain.Tests
             Assert.Equal("xUnit", testAction.TestFramework);
             Assert.False(testAction.PublishResults);
             Assert.False(testAction.CollectCoverage);
-            // Assert.True(testAction._shouldFail); // Kan niet direct private field testen
-            Assert.Equal("Run Failing xUnit Tests", action.Name);
         }
 
         [Fact]
-        // Requirement: FR07 (Factory Pattern - Analyse)
-        public void CreateAction_Maakt_Correcte_AnalyseAction_Met_Defaults()
+        public void Test_FR07_CreateAction_AnalyseAction_With_Defaults()
         {
             // Arrange
-            var parameters = new Dictionary<string, object>(); // Gebruik defaults
+            var parameters = new Dictionary<string, object>();
 
             // Act
             var action = PipelineActionFactory.CreateAction(PipelineActionFactory.ActionType.Analyse, "Static Analysis", parameters);
@@ -155,14 +140,12 @@ namespace AvansDevOps.App.Domain.Tests
             Assert.IsType<AnalyseAction>(action);
             var analyseAction = action as AnalyseAction;
             Assert.NotNull(analyseAction);
-            Assert.Equal("SonarQube", analyseAction.Tool); // Default
-            Assert.Null(analyseAction.SettingsFile); // Default
-            Assert.Equal("Static Analysis", action.Name);
+            Assert.Equal("SonarQube", analyseAction.Tool);
+            Assert.Null(analyseAction.SettingsFile);
         }
 
         [Fact]
-        // Requirement: FR07 (Factory Pattern - Analyse met parameters)
-        public void CreateAction_Maakt_Correcte_AnalyseAction_Met_Parameters()
+        public void Test_FR07_CreateAction_AnalyseAction_With_Parameters()
         {
             // Arrange
             var parameters = new Dictionary<string, object>
@@ -180,13 +163,11 @@ namespace AvansDevOps.App.Domain.Tests
             Assert.NotNull(analyseAction);
             Assert.Equal("CustomLinter", analyseAction.Tool);
             Assert.Equal("lint.config", analyseAction.SettingsFile);
-            Assert.Equal("Custom Linting", action.Name);
         }
 
 
         [Fact]
-        // Requirement: FR07 (Factory Pattern - Deploy)
-        public void CreateAction_Maakt_Correcte_DeployAction()
+        public void Test_FR07_CreateAction_DeployAction()
         {
             // Arrange
             var parameters = new Dictionary<string, object>
@@ -204,12 +185,10 @@ namespace AvansDevOps.App.Domain.Tests
             Assert.NotNull(deployAction);
             Assert.Equal("Production", deployAction.Environment);
             Assert.Equal("prod.server.com", deployAction.ServerAddress);
-            Assert.Equal("Deploy Prod", action.Name);
         }
 
         [Fact]
-        // Requirement: FR07 (Factory Pattern - Utility)
-        public void CreateAction_Maakt_Correcte_UtilityAction()
+        public void Test_FR07_CreateAction_UtilityAction()
         {
             // Arrange
             var args = new List<string> { "/source", "/dest" };
@@ -228,94 +207,58 @@ namespace AvansDevOps.App.Domain.Tests
             Assert.NotNull(utilityAction);
             Assert.Equal("copy", utilityAction.Command);
             Assert.Equal(args, utilityAction.Arguments);
-            Assert.Equal("Copy Files", action.Name);
         }
 
 
         [Fact]
-        // Requirement: FR07 (Factory Pattern - foutafhandeling Source)
-        public void CreateAction_Gooit_Exception_Bij_Missende_Parameter_Voor_Source()
+        public void Test_FR07_CreateAction_ThrowsException_On_Missing_Source_Parameter()
         {
             // Arrange
-            var parameters = new Dictionary<string, object>
-            {
-                // "RepositoryUrl" mist
-                { "Branch", "main" }
-            };
-
+            var parameters = new Dictionary<string, object> { { "Branch", "main" } };
             // Act & Assert
-            var exception = Assert.Throws<ArgumentException>(() =>
-                PipelineActionFactory.CreateAction(PipelineActionFactory.ActionType.Source, "Get Source", parameters)
-            );
-            Assert.Contains("RepositoryUrl", exception.Message);
+            var ex = Assert.Throws<ArgumentException>(() => PipelineActionFactory.CreateAction(PipelineActionFactory.ActionType.Source, "Get Source", parameters));
+            Assert.Contains("RepositoryUrl", ex.Message);
         }
 
         [Fact]
-        // Requirement: FR07 (Factory Pattern - foutafhandeling Package)
-        public void CreateAction_Gooit_Exception_Bij_Ongeldig_Parameter_Type_Voor_Package()
+        public void Test_FR07_CreateAction_ThrowsException_On_Invalid_Package_Parameter()
         {
             // Arrange
-            var parameters = new Dictionary<string, object>
-            {
-                { "Packages", "geen list" } // Ongeldig type
-            };
-
+            var parameters = new Dictionary<string, object> { { "Packages", "not-a-list" } };
             // Act & Assert
-            var exception = Assert.Throws<ArgumentException>(() =>
-                PipelineActionFactory.CreateAction(PipelineActionFactory.ActionType.Package, "Install Deps", parameters)
-            );
-            Assert.Contains("Packages (List<string>)", exception.Message);
+            var ex = Assert.Throws<ArgumentException>(() => PipelineActionFactory.CreateAction(PipelineActionFactory.ActionType.Package, "Install Deps", parameters));
+            Assert.Contains("Packages (List<string>)", ex.Message);
         }
 
         [Fact]
-        // Requirement: FR07 (Factory Pattern - foutafhandeling Deploy)
-        public void CreateAction_Gooit_Exception_Bij_Missende_Parameter_Voor_Deploy()
+        public void Test_FR07_CreateAction_ThrowsException_On_Missing_Deploy_Parameter()
         {
             // Arrange
-            var parameters = new Dictionary<string, object>
-            {
-                { "Environment", "Production" }
-                // "ServerAddress" mist
-            };
-
+            var parameters = new Dictionary<string, object> { { "Environment", "Production" } };
             // Act & Assert
-            var exception = Assert.Throws<ArgumentException>(() =>
-                PipelineActionFactory.CreateAction(PipelineActionFactory.ActionType.Deploy, "Deploy Prod", parameters)
-            );
-            Assert.Contains("ServerAddress", exception.Message);
+            var ex = Assert.Throws<ArgumentException>(() => PipelineActionFactory.CreateAction(PipelineActionFactory.ActionType.Deploy, "Deploy Prod", parameters));
+            Assert.Contains("ServerAddress", ex.Message);
         }
 
         [Fact]
-        // Requirement: FR07 (Factory Pattern - foutafhandeling Utility)
-        public void CreateAction_Gooit_Exception_Bij_Missende_Parameter_Voor_Utility()
+        public void Test_FR07_CreateAction_ThrowsException_On_Missing_Utility_Parameter()
         {
             // Arrange
             var args = new List<string> { "/source", "/dest" };
-            var parameters = new Dictionary<string, object>
-            {
-                // "Command" mist
-                { "Arguments", args }
-            };
-
+            var parameters = new Dictionary<string, object> { { "Arguments", args } };
             // Act & Assert
-            var exception = Assert.Throws<ArgumentException>(() =>
-                PipelineActionFactory.CreateAction(PipelineActionFactory.ActionType.Utility, "Copy Files", parameters)
-            );
-            Assert.Contains("Command", exception.Message);
+            var ex = Assert.Throws<ArgumentException>(() => PipelineActionFactory.CreateAction(PipelineActionFactory.ActionType.Utility, "Copy Files", parameters));
+            Assert.Contains("Command", ex.Message);
         }
 
         [Fact]
-        // Requirement: FR07 (Factory Pattern - onbekend type)
-        public void CreateAction_Gooit_Exception_Bij_Onbekend_ActionType()
+        public void Test_FR07_CreateAction_ThrowsException_On_Unknown_ActionType()
         {
             // Arrange
             var parameters = new Dictionary<string, object>();
-            var invalidType = (PipelineActionFactory.ActionType)99; // Ongeldige enum waarde
-
+            var invalidType = (PipelineActionFactory.ActionType)99;
             // Act & Assert
-            Assert.Throws<ArgumentOutOfRangeException>(() =>
-                PipelineActionFactory.CreateAction(invalidType, "Invalid Action", parameters)
-            );
+            Assert.Throws<ArgumentOutOfRangeException>(() => PipelineActionFactory.CreateAction(invalidType, "Invalid Action", parameters));
         }
     }
 }

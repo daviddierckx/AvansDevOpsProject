@@ -3,7 +3,7 @@
   <Settings>
     <Setting>
       <Key>sonar.cs.opencover.reportsPaths</Key>
-      <Value>C:\Users\dierc\Downloads\BI\AvansDevOps\AvansDevOps.App.Domain.Tests\TestResults\3778c973-aac9-49ec-b1c5-fcf4a2092d29\coverage.opencover.xml</Value>
+      <Value>C:\Users\dierc\Downloads\BI\AvansDevOps\AvansDevOps.App.Domain.Tests\TestResults\8063ff27-7e32-4c63-9ca3-7fc45b58d332\coverage.opencover.xml</Value>
     </Setting>
     <Setting>
       <Key>sonar.cs.ignoreHeaderComments</Key>

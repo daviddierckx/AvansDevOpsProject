@@ -1,27 +1,24 @@
-﻿
-using AvansDevOps.App.Domain.Entities;
+﻿using AvansDevOps.App.Domain.Entities;
 using AvansDevOps.App.Domain.Interfaces.Strategies;
-using Moq; // Voor mock strategie
+using Moq;
 using Xunit;
 
 namespace AvansDevOps.App.Domain.Tests
 {
     public class UserTests
     {
-        // Hulpfuncties
         private Developer CreateDeveloper(string name = "Test Dev")
         {
             return new Developer(name, name + "@test.com", name + "_slack");
         }
 
         [Fact]
-        // Test voor AC-FR02.1: Given een User object (bv. Developer) en een INotificationStrategy (bv. Email) / When AddNotificationPreference wordt aangeroepen met de strategie / Then de NotificationPreferences lijst van de User bevat deze strategie.
-        public void Test_AC_FR02_1_AddNotificationPreference_Voegt_Strategie_Toe()
+        public void Test_AC_FR02_1_AddNotificationPreference_Adds_Strategy()
         {
             // Arrange
             var user = CreateDeveloper();
             var mockStrategy = new Mock<INotificationStrategy>();
-            Assert.Empty(user.NotificationPreferences); // Pre-conditie
+            Assert.Empty(user.NotificationPreferences);
 
             // Act
             user.AddNotificationPreference(mockStrategy.Object);
@@ -32,30 +29,28 @@ namespace AvansDevOps.App.Domain.Tests
         }
 
         [Fact]
-        // Gerelateerd aan FR02: AddNotificationPreference voegt dezelfde strategie niet dubbel toe.
-        public void AddNotificationPreference_Voegt_Niet_Dubbel_Toe()
+        public void Test_FR02_AddNotificationPreference_Does_Not_Add_Duplicates()
         {
             // Arrange
             var user = CreateDeveloper();
             var mockStrategy = new Mock<INotificationStrategy>();
 
             // Act
-            user.AddNotificationPreference(mockStrategy.Object); // Eerste keer
-            user.AddNotificationPreference(mockStrategy.Object); // Tweede keer
+            user.AddNotificationPreference(mockStrategy.Object);
+            user.AddNotificationPreference(mockStrategy.Object);
 
             // Assert
-            Assert.Single(user.NotificationPreferences); // Mag er maar één keer in staan
+            Assert.Single(user.NotificationPreferences);
         }
 
         [Fact]
-        // Test voor AC-FR02.2: Given een User object met een INotificationStrategy in de voorkeuren / When RemoveNotificationPreference wordt aangeroepen met die strategie / Then de NotificationPreferences lijst van de User bevat deze strategie niet meer.
-        public void Test_AC_FR02_2_RemoveNotificationPreference_Verwijdert_Strategie()
+        public void Test_AC_FR02_2_RemoveNotificationPreference_Removes_Strategy()
         {
             // Arrange
             var user = CreateDeveloper();
             var mockStrategy = new Mock<INotificationStrategy>();
             user.AddNotificationPreference(mockStrategy.Object);
-            Assert.Single(user.NotificationPreferences); // Pre-conditie
+            Assert.Single(user.NotificationPreferences);
 
             // Act
             user.RemoveNotificationPreference(mockStrategy.Object);
@@ -65,27 +60,20 @@ namespace AvansDevOps.App.Domain.Tests
         }
 
         [Fact]
-        // Gerelateerd aan FR02: RemoveNotificationPreference doet niets als strategie niet bestaat.
-        public void RemoveNotificationPreference_Doet_Niets_Als_Strategie_Niet_Bestaat()
+        public void Test_FR02_RemoveNotificationPreference_Does_Nothing_If_Strategy_Not_Exists()
         {
             // Arrange
             var user = CreateDeveloper();
             var mockStrategy1 = new Mock<INotificationStrategy>();
             var mockStrategy2 = new Mock<INotificationStrategy>();
-            user.AddNotificationPreference(mockStrategy1.Object); // Voeg alleen strategie 1 toe
+            user.AddNotificationPreference(mockStrategy1.Object);
 
             // Act
-            user.RemoveNotificationPreference(mockStrategy2.Object); // Probeer strategie 2 te verwijderen
+            user.RemoveNotificationPreference(mockStrategy2.Object);
 
             // Assert
-            Assert.Single(user.NotificationPreferences); // Lijst moet ongewijzigd zijn
+            Assert.Single(user.NotificationPreferences);
             Assert.Contains(mockStrategy1.Object, user.NotificationPreferences);
         }
-
-        // AC-FR02.3 wordt indirect getest via de notificatietests in SprintTests en BacklogItemTests
-        // waar geverifieerd wordt dat observers (Users) hun Update methode aangeroepen krijgen.
-        // Een directe test zou het mocken van INotificationService vereisen en controleren
-        // of de juiste strategieën worden aangeroepen binnen die service, wat buiten de
-        // scope van domein unit tests valt (meer Application/Infrastructure laag).
     }
 }

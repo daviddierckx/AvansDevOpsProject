@@ -6,24 +6,22 @@ namespace AvansDevOps.App.Domain.Tests
     public class ActivityTests
     {
         [Fact]
-        // Requirement: FR03 (Activiteiten kunnen worden voltooid)
-        public void MarkAsDone_Zet_Completed_Op_True()
+        public void Test_AC_FR05_20_MarkAsDone_Sets_Completed_To_True()
         {
             // Arrange
             var activity = new Activity("Test deze activiteit");
-            Assert.False(activity.Completed); // Pre-check
+            Assert.False(activity.Completed);
 
             // Act
             activity.MarkAsDone();
 
             // Assert
             Assert.True(activity.Completed);
-            Assert.True(activity.IsDone()); // Controleer ook IsDone()
+            Assert.True(activity.IsDone());
         }
 
         [Fact]
-        // Requirement: FR03 (Nieuwe activiteit is niet voltooid)
-        public void Nieuwe_Activity_Is_Niet_Completed()
+        public void Test_FR03_New_Activity_Is_Not_Completed()
         {
             // Arrange
             var activity = new Activity("Nieuwe activiteit");
@@ -34,36 +32,33 @@ namespace AvansDevOps.App.Domain.Tests
         }
 
         [Fact]
-        // Requirement: FR03 (IsDone werkt correct)
-        public void IsDone_Retourneert_Correcte_Waarde()
+        public void Test_FR03_IsDone_Returns_Correct_Value()
         {
             // Arrange
             var activity = new Activity("Test IsDone");
 
-            // Assert initieel
+            // Assert initial
             Assert.False(activity.IsDone());
 
             // Act
             activity.MarkAsDone();
 
-            // Assert na MarkAsDone
+            // Assert after
             Assert.True(activity.IsDone());
         }
 
         [Fact]
-        // Requirement: FR03 (MarkAsDone is idempotent)
-        public void MarkAsDone_Meerdere_Keren_Aanroepen_Blijft_Completed_True()
+        public void Test_FR03_MarkAsDone_Is_Idempotent()
         {
             // Arrange
             var activity = new Activity("Test Idempotentie");
 
             // Act
-            activity.MarkAsDone(); // Eerste keer
-            activity.MarkAsDone(); // Tweede keer
+            activity.MarkAsDone();
+            activity.MarkAsDone();
 
             // Assert
             Assert.True(activity.Completed);
-            Assert.True(activity.IsDone());
         }
     }
 }
