@@ -1,6 +1,6 @@
 # Bestandsnaam: .github/workflows/dotnet-ci.yml
 
-name: .NET CI Build, Test, Analyze (SonarCloud met Cobertura)
+name: .NET CI Build, Test, Analyze (SonarCloud - Definitieve Methode)
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     steps:
-    # Stappen 1 t/m 5 blijven ongewijzigd
+    # Stappen 1-5 blijven hetzelfde
     - name: Checkout code
       uses: actions/checkout@v3
       with:
@@ -43,7 +43,7 @@ jobs:
     - name: Install SonarScanner
       run: dotnet tool install --global dotnet-sonarscanner
 
-    # Stap 6: SonarScanner 'begin' stap met de wildcard. DIT IS CORRECT.
+    # Stap 6: SonarScanner 'begin' stap. We gebruiken nu een VAST pad.
     - name: SonarScanner Begin Analysis
       run: |
         dotnet sonarscanner begin \
@@ -51,13 +51,13 @@ jobs:
           /k:"daviddierckx_AvansDevOpsProject" \
           /d:sonar.host.url="https://sonarcloud.io" \
           /d:sonar.login="${{ env.SONAR_TOKEN }}" \
-          /d:sonar.cs.cobertura.reportsPaths="**/coverage.cobertura.xml" 
+          /d:sonar.cs.cobertura.reportsPaths="./TestResults/coverage.cobertura.xml" 
 
     # Stap 7: Code bouwen
     - name: Build project
       run: dotnet build --configuration Release --no-restore
 
-    # Stap 8: Unit Tests uitvoeren. DIT IS CORRECT.
+    # Stap 8: Unit Tests uitvoeren
     - name: Run tests with Cobertura coverage
       run: |
         dotnet test \
@@ -66,9 +66,11 @@ jobs:
           --collect:"XPlat Code Coverage" \
           --results-directory ./TestResults
           
-    # Stap 9 (Debug-stap) mag je verwijderen of laten staan.
-    - name: List files in TestResults directory
-      run: ls -R ./TestResults
+    # NIEUWE STAP: Verplaats het coverage-rapport
+    - name: Move coverage report to a predictable location
+      run: |
+        # Vind het Cobertura-bestand in de willekeurige submap en verplaats het naar de TestResults-hoofdmap
+        find ./TestResults -name "coverage.cobertura.xml" -exec mv {} ./TestResults/coverage.cobertura.xml \;
 
     # Stap 10: SonarScanner 'end' stap
     - name: SonarScanner End Analysis
