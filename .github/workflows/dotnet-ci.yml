@@ -1,6 +1,6 @@
 # Bestandsnaam: .github/workflows/dotnet-ci.yml
 
-name: .NET CI Build, Test, Analyze (SonarCloud - Definitieve Methode)
+name: .NET CI Build, Test, Analyze (SonarCloud - Coverlet.Console Methode)
 
 on:
   push:
@@ -16,9 +16,11 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      # Definieer het pad naar het testproject voor herbruikbaarheid
+      TEST_PROJECT_PATH: ./AvansDevOps.App.Domain.Tests/AvansDevOps.App.Domain.Tests.csproj
 
     steps:
-    # Stappen 1-5 blijven hetzelfde
+    # Stappen 1-4 blijven hetzelfde
     - name: Checkout code
       uses: actions/checkout@v3
       with:
@@ -40,10 +42,13 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Install SonarScanner
-      run: dotnet tool install --global dotnet-sonarscanner
+    # Stap 5: Installeer BEIDE tools
+    - name: Install SonarScanner and Coverlet Console
+      run: |
+        dotnet tool install --global dotnet-sonarscanner
+        dotnet tool install --global coverlet.console
 
-    # Stap 6: SonarScanner 'begin' stap. We gebruiken nu een VAST pad.
+    # Stap 6: SonarScanner 'begin' stap. We gaan terug naar OpenCover.
     - name: SonarScanner Begin Analysis
       run: |
         dotnet sonarscanner begin \
@@ -51,26 +56,24 @@ jobs:
           /k:"daviddierckx_AvansDevOpsProject" \
           /d:sonar.host.url="https://sonarcloud.io" \
           /d:sonar.login="${{ env.SONAR_TOKEN }}" \
-          /d:sonar.cs.cobertura.reportsPaths="./TestResults/coverage.cobertura.xml" 
+          /d:sonar.cs.opencover.reportsPaths="./TestResults/coverage.opencover.xml" 
 
     # Stap 7: Code bouwen
     - name: Build project
       run: dotnet build --configuration Release --no-restore
 
-    # Stap 8: Unit Tests uitvoeren
-    - name: Run tests with Cobertura coverage
+    # Stap 8: Unit Tests uitvoeren ZONDER coverage. We hebben alleen de testresultaten nodig.
+    - name: Run tests (no coverage collection here)
+      run: dotnet test --configuration Release --no-build --logger trx
+
+    # NIEUWE STAP 9: Genereer het coverage-rapport met coverlet.console
+    - name: Generate Coverage Report with Coverlet
       run: |
-        dotnet test \
-          --configuration Release \
-          --no-build \
-          --collect:"XPlat Code Coverage" \
-          --results-directory ./TestResults
-          
-    # NIEUWE STAP: Verplaats het coverage-rapport
-    - name: Move coverage report to a predictable location
-      run: |
-        # Vind het Cobertura-bestand in de willekeurige submap en verplaats het naar de TestResults-hoofdmap
-        find ./TestResults -name "coverage.cobertura.xml" -exec mv {} ./TestResults/coverage.cobertura.xml \;
+        coverlet ${{ env.TEST_PROJECT_PATH }} \
+          --target "dotnet" \
+          --targetargs "test --no-build --configuration Release" \
+          --format opencover \
+          --output "./TestResults/coverage.opencover.xml"
 
     # Stap 10: SonarScanner 'end' stap
     - name: SonarScanner End Analysis
