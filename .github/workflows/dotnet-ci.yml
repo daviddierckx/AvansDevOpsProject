@@ -1,32 +1,36 @@
+# Bestandsnaam: .github/workflows/dotnet-ci.yml
 
-name: .NET CI Build, Test, Analyze (SonarCloud met OpenCover)
+name: .NET CI Build, Test, Analyze (SonarCloud met Cobertura)
 
-# Trigger de workflow bij een push naar de main branch of bij pull requests naar main
 on:
   push:
-    branches: [ master ] 
+    branches: [ main ] # Of 'master' als dat je branch is
   pull_request:
-    branches: [ master ] 
+    branches: [ main ] 
 
 jobs:
   build-test-analyze:
     name: Build, Test & Analyze
-    runs-on: ubuntu-latest # Of windows-latest als je Windows nodig hebt
+    runs-on: ubuntu-latest
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     steps:
-    # Stap 1: Code ophalen uit de repository
+    # Stap 1: Code ophalen
     - name: Checkout code
       uses: actions/checkout@v3
       with:
-        fetch-depth: 0 # Nodig voor SonarCloud analyse van pull requests
+        fetch-depth: 0 
 
-    # Stap 2: Juiste .NET SDK versie installeren
+    # Stap 2: .NET SDK installeren
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '8.0.x' # !! PAS AAN naar jouw .NET versie !!
+        dotnet-version: '8.0.x'
 
-    # Stap 3: Cache NuGet packages (optioneel, versnelt builds)
+    # Stap 3: Cache (optioneel)
     - name: Cache NuGet packages
       uses: actions/cache@v3
       with:
@@ -35,38 +39,37 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-nuget-
 
-    # Stap 4: NuGet dependencies herstellen
+    # Stap 4: Dependencies herstellen
     - name: Restore dependencies
       run: dotnet restore
 
-    # Stap 5: SonarScanner tool installeren (als global tool)
+    # Stap 5: SonarScanner installeren
     - name: Install SonarScanner
       run: dotnet tool install --global dotnet-sonarscanner
-      # Je kunt ook een specifieke versie installeren indien nodig
 
-    # Stap 6: SonarScanner 'begin' stap (configuratie)
-    #    Vóór de build/test stap!
+    # Stap 6: SonarScanner 'begin' stap (AANGEPAST)
     - name: SonarScanner Begin Analysis
-      env:
-        GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }} # Nodig voor PR analyse
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
-            dotnet sonarscanner begin /o:"daviddierckx-1" /k:"daviddierckx_AvansDevOpsProject" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ env.SONAR_TOKEN }}" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" 
+        dotnet sonarscanner begin \
+          /o:"daviddierckx-1" \
+          /k:"daviddierckx_AvansDevOpsProject" \
+          /d:sonar.host.url="https://sonarcloud.io" \
+          /d:sonar.login="${{ env.SONAR_TOKEN }}" \
+          /d:sonar.cs.cobertura.reportsPaths="./TestResults/coverage.cobertura.xml"  # <-- BELANGRIJKE WIJZIGING
 
-
-    # Stap 7: Code bouwen (Release configuratie)
+    # Stap 7: Code bouwen
     - name: Build project
       run: dotnet build --configuration Release --no-restore
 
-    # Stap 8: Unit Tests uitvoeren MET OpenCover code coverage
-    #    Zorg dat 'coverlet.collector' NuGet package is toegevoegd aan je test project
-    - name: Run tests with OpenCover coverage
+    # Stap 8: Unit Tests uitvoeren (AANGEPAST)
+    - name: Run tests with Cobertura coverage
       run: |
-        dotnet test --configuration Release --no-build --logger "trx;LogFileName=testresults.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./TestResults/coverage.opencover.xml --results-directory ./TestResults
+        dotnet test \
+          --configuration Release \
+          --no-build \
+          --collect:"XPlat Code Coverage" \
+          --results-directory ./TestResults # <-- BELANGRIJKE WIJZIGING
 
-    # Stap 9: SonarScanner 'end' stap (upload resultaten)
+    # Stap 9: SonarScanner 'end' stap
     - name: SonarScanner End Analysis
-      # env: SONAR_TOKEN niet meer nodig als environment variable hier
-      run: |
-        dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-
+      run: dotnet sonarscanner end /d:sonar.login="${{ env.SONAR_TOKEN }}"
