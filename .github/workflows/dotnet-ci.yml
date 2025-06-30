@@ -1,6 +1,6 @@
 # Bestandsnaam: .github/workflows/dotnet-ci.yml
 
-name: .NET CI Build, Test, Analyze (SonarCloud met Cobertura)
+name: .NET CI Build, Test, Analyze (SonarCloud with Cobertura)
 
 on:
   push:
