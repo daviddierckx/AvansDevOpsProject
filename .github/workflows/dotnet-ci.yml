@@ -4,9 +4,9 @@ name: .NET CI Build, Test, Analyze (SonarCloud - dotnet-coverage)
 
 on:
   push:
-    branches: [ master ] # Of 'master'
+    branches: [ master ] # <-- AANGEPAST
   pull_request:
-    branches: [ master ] 
+    branches: [ master ] # <-- AANGEPAST
 
 jobs:
   build-test-analyze:
@@ -16,21 +16,23 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      SOLUTION_FILE_PATH: . # Pad naar je solution, pas aan indien nodig
+      SOLUTION_FILE_PATH: . 
       TEST_PROJECT_PATH: ./AvansDevOps.App.Domain.Tests/AvansDevOps.App.Domain.Tests.csproj
 
     steps:
-    # Stappen 1-4 blijven hetzelfde
+    # Stap 1: Code ophalen
     - name: Checkout code
       uses: actions/checkout@v3
       with:
         fetch-depth: 0 
 
+    # Stap 2: .NET SDK installeren
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '8.0.x'
 
+    # Stap 3: NuGet packages cachen (optioneel)
     - name: Cache NuGet packages
       uses: actions/cache@v3
       with:
@@ -39,14 +41,17 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-nuget-
 
+    # Stap 4: Dependencies herstellen
     - name: Restore dependencies
       run: dotnet restore ${{ env.SOLUTION_FILE_PATH }}
 
-    # Stap 5: Installeer ALLEEN SonarScanner
-    - name: Install SonarScanner
-      run: dotnet tool install --global dotnet-sonarscanner
+    # Stap 5: Benodigde .NET tools installeren
+    - name: Install .NET Tools
+      run: |
+        dotnet tool install --global dotnet-sonarscanner
+        dotnet tool install --global dotnet-coverage
 
-    # Stap 6: SonarScanner 'begin' stap (we gebruiken weer OpenCover)
+    # Stap 6: SonarScanner 'begin' stap
     - name: SonarScanner Begin Analysis
       run: |
         dotnet sonarscanner begin \
@@ -56,11 +61,11 @@ jobs:
           /d:sonar.login="${{ env.SONAR_TOKEN }}" \
           /d:sonar.cs.opencover.reportsPaths="./TestResults/coverage.opencover.xml" 
 
-    # Stap 7: Code bouwen
+    # Stap 7: Project bouwen
     - name: Build project
       run: dotnet build --configuration Release --no-restore ${{ env.SOLUTION_FILE_PATH }}
 
-    # Stap 8: Unit Tests uitvoeren en coverage genereren met de Microsoft tool
+    # Stap 8: Unit Tests uitvoeren en coverage genereren
     - name: Run tests and collect coverage
       run: |
         dotnet-coverage collect 'dotnet test ${{ env.TEST_PROJECT_PATH }} --configuration Release --no-build' \
