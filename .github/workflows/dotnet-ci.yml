@@ -43,7 +43,7 @@ jobs:
     - name: Install SonarScanner
       run: dotnet tool install --global dotnet-sonarscanner
 
-    # Stap 6: SonarScanner 'begin' - Deze is CORRECT en hoeft NIET aangepast te worden
+    # Stap 6: SonarScanner 'begin' - Deze is correct en zoekt op het juiste pad.
     - name: SonarScanner Begin Analysis
       run: |
         dotnet sonarscanner begin \
@@ -57,7 +57,8 @@ jobs:
     - name: Build project
       run: dotnet build --configuration Release --no-restore
 
-    # Stap 8: Unit Tests uitvoeren (FINALE CORRECTIE)
+    # Stap 8: Unit Tests uitvoeren (DEZE VERSIE IS DE JUISTE)
+    # Deze stap dwingt de output naar de juiste map, ZONDER willekeurige submap.
     - name: Run tests with Cobertura coverage
       run: |
         dotnet test \
