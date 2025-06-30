@@ -1,6 +1,6 @@
 # Bestandsnaam: .github/workflows/dotnet-ci.yml
 
-name: .NET CI Build, Test, Analyze (SonarCloud - Coverlet.Console Methode)
+name: .NET CI Build, Test, Analyze (SonarCloud - Definitieve Methode)
 
 on:
   push:
@@ -42,7 +42,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    # Stap 5: Installeer BEIDE tools
+    # Stap 5: Installeer de benodigde tools
     - name: Install SonarScanner and Coverlet Console
       run: |
         dotnet tool install --global dotnet-sonarscanner
@@ -58,23 +58,26 @@ jobs:
           /d:sonar.login="${{ env.SONAR_TOKEN }}" \
           /d:sonar.cs.opencover.reportsPaths="./TestResults/coverage.opencover.xml" 
 
-    # Stap 7: Code bouwen
-    - name: Build project
-      run: dotnet build --configuration Release --no-restore
+    # Stap 7: Code bouwen. We voegen hier de PDB-generatie toe.
+    - name: Build project with Full PDBs
+      run: dotnet build --configuration Release --no-restore /p:DebugType=full
 
-    # Stap 8: Unit Tests uitvoeren ZONDER coverage.
+    # Stap 8: Unit Tests uitvoeren. Deze stap is nu alleen om te verifiëren dat de tests slagen.
     - name: Run tests (no coverage collection here)
       run: dotnet test --configuration Release --no-build --logger trx
 
-    # Stap 9: Genereer het coverage-rapport met coverlet.console (DEFINITIEVE FIX)
+    # Stap 9: Genereer het coverage-rapport met de meest expliciete configuratie
     - name: Generate Coverage Report with Coverlet
       run: |
-        coverlet ${{ env.TEST_PROJECT_PATH }} \
+        # We halen het pad naar de test-DLL op
+        TEST_ASSEMBLY_PATH=$(find ./AvansDevOps.App.Domain.Tests -name "AvansDevOps.App.Domain.Tests.dll" -print -quit)
+
+        coverlet $TEST_ASSEMBLY_PATH \
           --target "dotnet" \
-          --targetargs "test --no-build --configuration Release" \
+          --targetargs "test ${{ env.TEST_PROJECT_PATH }} --no-build --configuration Release" \
           --format opencover \
           --output "./TestResults/coverage.opencover.xml" \
-          --include-test-assembly # <-- DE CRUCIALE TOEVOEGING
+          --include "[AvansDevOps.App.Domain]*" # <-- Vertel Coverlet om ALLEEN je domeinlogica te meten
 
     # Stap 10: SonarScanner 'end' stap
     - name: SonarScanner End Analysis
