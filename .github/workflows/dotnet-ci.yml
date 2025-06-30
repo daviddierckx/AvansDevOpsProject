@@ -43,7 +43,7 @@ jobs:
     - name: Install SonarScanner
       run: dotnet tool install --global dotnet-sonarscanner
 
-    # Stap 6: SonarScanner 'begin' stap (AANGEPAST MET WILDCARD)
+    # Stap 6: SonarScanner 'begin' stap met de wildcard. DIT IS CORRECT.
     - name: SonarScanner Begin Analysis
       run: |
         dotnet sonarscanner begin \
@@ -51,13 +51,13 @@ jobs:
           /k:"daviddierckx_AvansDevOpsProject" \
           /d:sonar.host.url="https://sonarcloud.io" \
           /d:sonar.login="${{ env.SONAR_TOKEN }}" \
-          /d:sonar.cs.cobertura.reportsPaths="**/coverage.cobertura.xml" # <-- Pad is nu flexibeler
+          /d:sonar.cs.cobertura.reportsPaths="**/coverage.cobertura.xml" 
 
     # Stap 7: Code bouwen
     - name: Build project
       run: dotnet build --configuration Release --no-restore
 
-    # Stap 8: Unit Tests uitvoeren. We gebruiken weer de '--collect' vlag omdat die lokaal werkte.
+    # Stap 8: Unit Tests uitvoeren. DIT IS CORRECT.
     - name: Run tests with Cobertura coverage
       run: |
         dotnet test \
@@ -66,11 +66,10 @@ jobs:
           --collect:"XPlat Code Coverage" \
           --results-directory ./TestResults
           
-    # NIEUWE DEBUG-STAP: Toon de inhoud van de TestResults map
+    # Stap 9 (Debug-stap) mag je verwijderen of laten staan.
     - name: List files in TestResults directory
       run: ls -R ./TestResults
-      # Deze stap zal de structuur van de map tonen, zodat we kunnen zien waar het bestand staat.
 
-    # Stap 9: SonarScanner 'end' stap
+    # Stap 10: SonarScanner 'end' stap
     - name: SonarScanner End Analysis
       run: dotnet sonarscanner end /d:sonar.login="${{ env.SONAR_TOKEN }}"
