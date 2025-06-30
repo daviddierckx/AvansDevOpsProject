@@ -18,7 +18,7 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     steps:
-    # Stappen 1 t/m 5 blijven hetzelfde...
+    # Stappen 1 t/m 5 blijven ongewijzigd
     - name: Checkout code
       uses: actions/checkout@v3
       with:
@@ -43,7 +43,7 @@ jobs:
     - name: Install SonarScanner
       run: dotnet tool install --global dotnet-sonarscanner
 
-    # Stap 6: SonarScanner 'begin' - Deze is correct en zoekt op het juiste pad.
+    # Stap 6: SonarScanner 'begin' stap (AANGEPAST MET WILDCARD)
     - name: SonarScanner Begin Analysis
       run: |
         dotnet sonarscanner begin \
@@ -51,22 +51,25 @@ jobs:
           /k:"daviddierckx_AvansDevOpsProject" \
           /d:sonar.host.url="https://sonarcloud.io" \
           /d:sonar.login="${{ env.SONAR_TOKEN }}" \
-          /d:sonar.cs.cobertura.reportsPaths="./TestResults/coverage.cobertura.xml"
+          /d:sonar.cs.cobertura.reportsPaths="**/coverage.cobertura.xml" # <-- Pad is nu flexibeler
 
     # Stap 7: Code bouwen
     - name: Build project
       run: dotnet build --configuration Release --no-restore
 
-    # Stap 8: Unit Tests uitvoeren (DEZE VERSIE IS DE JUISTE)
-    # Deze stap dwingt de output naar de juiste map, ZONDER willekeurige submap.
+    # Stap 8: Unit Tests uitvoeren. We gebruiken weer de '--collect' vlag omdat die lokaal werkte.
     - name: Run tests with Cobertura coverage
       run: |
         dotnet test \
           --configuration Release \
           --no-build \
-          /p:CollectCoverage=true \
-          /p:CoverletOutputFormat=cobertura \
-          /p:CoverletOutput=./TestResults/coverage.cobertura.xml
+          --collect:"XPlat Code Coverage" \
+          --results-directory ./TestResults
+          
+    # NIEUWE DEBUG-STAP: Toon de inhoud van de TestResults map
+    - name: List files in TestResults directory
+      run: ls -R ./TestResults
+      # Deze stap zal de structuur van de map tonen, zodat we kunnen zien waar het bestand staat.
 
     # Stap 9: SonarScanner 'end' stap
     - name: SonarScanner End Analysis
